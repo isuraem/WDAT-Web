@@ -2,7 +2,7 @@ import { FunctionComponent, useState, useEffect } from "react";
 import "./Todoitem.css";
 import { log } from "console";
 import IconButton from "./shared/button";
-import { deleteTodo, completeTodo, updateTodo } from '../API'
+import { deleteTodo, completeTodo, updateTodo } from '../services/util/todo/API'
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';

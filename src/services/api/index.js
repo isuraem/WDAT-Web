@@ -11,6 +11,6 @@ export const axiosInstance = axios.create({ baseURL: BASE_URL })
 
 //Axios response interceptor
 axiosInstance.interceptors.response.use(
-    response => successHandler(response.data),
+    response => successHandler(response),
     error => errorHandler(error.response),
 )

@@ -5,7 +5,8 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import "./App.css";
-import { getTodos, addTodo, updateTodo, deleteTodo } from './API'
+// import { getTodos, addTodo, updateTodo, deleteTodo } from './API'
+import { getTodos, addTodo, updateTodo, deleteTodo } from './services/util/todo/API'
 import io from 'socket.io-client';
 
 const App: FunctionComponent = () => {
@@ -69,13 +70,13 @@ const App: FunctionComponent = () => {
       socket.on('todoAdded', (newTodo) => {
         const  data = [];
         data.push((prevTodos:never) => [...prevTodos, newTodo])
-        mangeData(newTodo)
+        fetchTodos()
       });
   
       return () => {
         socket.off('todoAdded');
       };
-    }, [handleSubmit]);
+    }, []);
    
   
     return (
