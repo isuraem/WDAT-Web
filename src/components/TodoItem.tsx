@@ -6,14 +6,15 @@ import { deleteTodo, completeTodo, updateTodo } from '../services/util/todo/API'
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import CompleteConfirmation from './modals/completeConfirmationModal'; // Import the new component
+
 export type TodoitemType = {
-  key?: Number;
   todo?: ITodo;
   pendingStatus?: Boolean;
   fetchTodos: () => Promise<void>;
 };
 
-const Todoitem: FunctionComponent<TodoitemType> = ({ key, todo, pendingStatus, fetchTodos }) => {
+const Todoitem: FunctionComponent<TodoitemType> = ({  todo, pendingStatus, fetchTodos }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showModalComplete, setShowModalComplete] = useState(false);
@@ -21,12 +22,10 @@ const Todoitem: FunctionComponent<TodoitemType> = ({ key, todo, pendingStatus, f
     setIsExpanded(!isExpanded);
   };
   const handleDelete = async (data: any) => {
-    console.log("data", data)
     await deleteTodo(data);
     fetchTodos()
   };
   const handleComplete = async (data: any) => {
-    console.log("data", data)
     await completeTodo(data);
     fetchTodos()
   };
@@ -45,8 +44,7 @@ const Todoitem: FunctionComponent<TodoitemType> = ({ key, todo, pendingStatus, f
     setShowModalComplete(false);
   };
 
-  const MyModal: React.FC<{ fetchTodos: () => Promise<void>; todo: any; show: boolean; handleClose: () => void }> = ({ fetchTodos, todo, show, handleClose }) => {
-    const [title, setTitle] = useState('');
+  const EditToDoModal: React.FC<{ fetchTodos: () => Promise<void>; todo: any; show: boolean; handleClose: () => void }> = ({ fetchTodos, todo, show, handleClose }) => {
     const [message, setMessage] = useState('');
   
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -85,44 +83,14 @@ const Todoitem: FunctionComponent<TodoitemType> = ({ key, todo, pendingStatus, f
       </Modal>
     );
   };
-  
-  const CompleteConfirmation: React.FC<{ fetchTodos: () => Promise<void>; todo: any; show: boolean; handleClose: () => void }> = ({ fetchTodos, todo, show, handleClose }) => {
-  
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      await completeTodo(todo?._id);
-      handleClose();
-      fetchTodos()
-    };
 
-    return (
-      <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Mark as Todo complete</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <div>
-              Mark as completed and can't undone this
-            </div>
-            <div className="text-end"> 
-              <Button variant="primary" type="submit" className="mt-4">
-                Confirm
-              </Button>
-            </div>
-  
-          </Form>
-        </Modal.Body>
-      </Modal>
-    );
-  };
   
   return (
     <>
 
       <div className="Main-item">
-        <MyModal fetchTodos={fetchTodos} todo={todo} show={showModal} handleClose={handleCloseModal} />
-        <CompleteConfirmation fetchTodos={fetchTodos} todo={todo} show={showModalComplete} handleClose={handleCompleteCloseModal} />
+        <EditToDoModal fetchTodos={fetchTodos} todo={todo} show={showModal} handleClose={handleCloseModal} />
+        <CompleteConfirmation fetchTodos={fetchTodos} todo={todo} show={showModalComplete} handleClose={handleCompleteCloseModal} handleComplete={handleComplete} />
         <div className="todoitem1">
           <div className="todoitem-item" />
           <div className="to-study-react-fundamentals-wrapper">
@@ -134,9 +102,6 @@ const Todoitem: FunctionComponent<TodoitemType> = ({ key, todo, pendingStatus, f
               <div className="frame-child" />
             </div>
             <IconButton onClick={() => handleDelete(todo?._id)} textTag="delete" />
-            {pendingStatus === false &&
-              <IconButton onClick={toggleAccordion} textTag={"⭐"} />
-            }
             {pendingStatus === false &&
               <IconButton onClick={handleCompleteButtonClick} textTag={"🏁"} />
             }

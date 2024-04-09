@@ -5,8 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import "./App.css";
-// import { getTodos, addTodo, updateTodo, deleteTodo } from './API'
-import { getTodos, addTodo, updateTodo, deleteTodo } from './services/util/todo/API'
+import { getTodos, addTodo} from './services/util/todo/API'
 import io from 'socket.io-client';
 
 const App: FunctionComponent = () => {
@@ -14,6 +13,7 @@ const App: FunctionComponent = () => {
   const [showModal, setShowModal] = useState(false);
   const [trueData, setTrueData] = useState<ITodo[]>([]);
   const [falseData, setFalseData] = useState<ITodo[]>([]);
+
   const handleButtonClick = () => {
     setShowModal(true);
   };
@@ -47,7 +47,7 @@ const App: FunctionComponent = () => {
     setFalseData(falseArray);
   }, [todos]);
 
-  const MyModal: React.FC<{ mangeData: (data: any) => Promise<void>, fetchTodos: () => Promise<void>;show: boolean; handleClose: () => void }> = ({ mangeData, fetchTodos,show, handleClose }) => {
+  const AddTODOModal: React.FC<{ fetchTodos: () => Promise<void>;show: boolean; handleClose: () => void }> = ({  fetchTodos,show, handleClose }) => {
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
   
@@ -65,7 +65,8 @@ const App: FunctionComponent = () => {
     };
     
     useEffect(() => {
-      const socket = io('http://localhost:5000'); // Adjust this URL to match your server
+      const URL = process.env.REACT_APP_SERVER;
+      const socket = io(`${URL}`);
   
       socket.on('todoAdded', (newTodo) => {
         const  data = [];
@@ -106,9 +107,10 @@ const App: FunctionComponent = () => {
       </Modal>
     );
   };
+
   return (
     <div className="app">
-      <MyModal mangeData={mangeData} fetchTodos={fetchTodos} show={showModal} handleClose={handleCloseModal} />
+      <AddTODOModal fetchTodos={fetchTodos} show={showModal} handleClose={handleCloseModal} />
       <div className="f-r-a-m-e">
         <div className="input">
           <div className="input-child" />
