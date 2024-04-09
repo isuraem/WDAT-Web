@@ -5,8 +5,9 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import "./App.css";
-import { getTodos, addTodo} from './services/util/todo/API'
+import { getTodos, addTodo } from './services/util/todo/API'
 import io from 'socket.io-client';
+import { toast } from 'react-toastify';
 
 const App: FunctionComponent = () => {
   const [todos, setTodos] = useState<ITodo[]>([])
@@ -38,21 +39,63 @@ const App: FunctionComponent = () => {
   const mangeData = async (newTodo: ITodo): Promise<void> => {
     setTodos((prevTodos) => [...prevTodos, newTodo]);
   };
-  
+
   useEffect(() => {
     const trueArray = todos?.filter((item) => item.status === true);
     const falseArray = todos?.filter((item) => item.status === false);
-  
+
     setTrueData(trueArray);
     setFalseData(falseArray);
   }, [todos]);
 
-  const AddTODOModal: React.FC<{ fetchTodos: () => Promise<void>;show: boolean; handleClose: () => void }> = ({  fetchTodos,show, handleClose }) => {
+  const AddTODOModal: React.FC<{ fetchTodos: () => Promise<void>; show: boolean; handleClose: () => void }> = ({ fetchTodos, show, handleClose }) => {
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
-  
+
+
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      // Check if title contains "<" or ">"
+      if (title.includes('<') || title.includes('>')) {
+        toast.error(<div>{'Title cannot contain "<" or ">" symbols'}</div>, {
+          position: "top-right",
+          autoClose: 2500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return;
+      }
+      // Check if message contains "<" or ">"
+      if (message.includes('<') || message.includes('>')) {
+        toast.error(<div>{'Message cannot contain "<" or ">" symbols'}</div>, {
+          position: "top-right",
+          autoClose: 2500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return;
+      }
+      // Check if title or message is empty
+      if (!title.trim() || !message.trim()) {
+        toast.error(<div>{'Please fill in both fields'}</div>, {
+          position: "top-right",
+          autoClose: 2500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return;
+      }
+
       await addTodo({
         _id: '',
         name: title,
@@ -63,23 +106,23 @@ const App: FunctionComponent = () => {
       setMessage('');
       handleClose();
     };
-    
+
     useEffect(() => {
       const URL = process.env.REACT_APP_SERVER;
       const socket = io(`${URL}`);
-  
+
       socket.on('todoAdded', (newTodo) => {
-        const  data = [];
-        data.push((prevTodos:never) => [...prevTodos, newTodo])
+        const data = [];
+        data.push((prevTodos: never) => [...prevTodos, newTodo])
         fetchTodos()
       });
-  
+
       return () => {
         socket.off('todoAdded');
       };
     }, []);
-   
-  
+
+
     return (
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -91,7 +134,7 @@ const App: FunctionComponent = () => {
               <Form.Label>Todo title</Form.Label>
               <Form.Control type="text" placeholder="Do home work" value={title} onChange={(e) => setTitle(e.target.value)} />
             </Form.Group>
-  
+
             <Form.Group controlId="formBasicInput2">
               <Form.Label>Todo message</Form.Label>
               <Form.Control type="text" placeholder="maths , science" value={message} onChange={(e) => setMessage(e.target.value)} />
@@ -101,7 +144,7 @@ const App: FunctionComponent = () => {
                 Submit
               </Button>
             </div>
-  
+
           </Form>
         </Modal.Body>
       </Modal>
@@ -120,8 +163,8 @@ const App: FunctionComponent = () => {
           <IconButton onClick={handleButtonClick} textTag="+" />
         </div>
       </div>
-      <FrameComponent fetchTodos={fetchTodos}  pendingStatus={false} statusTitle={'Task to do'} todos={falseData} />
-      <FrameComponent fetchTodos={fetchTodos}  pendingStatus={true} statusTitle={'Done'}  todos={trueData} />
+      <FrameComponent fetchTodos={fetchTodos} pendingStatus={false} statusTitle={'Task to do'} todos={falseData} />
+      <FrameComponent fetchTodos={fetchTodos} pendingStatus={true} statusTitle={'Done'} todos={trueData} />
     </div>
   );
 };
